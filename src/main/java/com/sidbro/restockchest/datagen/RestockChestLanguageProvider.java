@@ -1,0 +1,34 @@
+package com.sidbro.restockchest.datagen;
+
+import com.sidbro.restockchest.RestockChest;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.data.LanguageProvider;
+
+public final class RestockChestLanguageProvider extends LanguageProvider {
+    public RestockChestLanguageProvider(PackOutput output) {
+        super(output, RestockChest.MODID, "en_us");
+    }
+
+    @Override
+    protected void addTranslations() {
+        add(
+                "command.restockchest.error.loot_table_not_found",
+                "Loot table not found: %s"
+        );
+
+        add(
+                "command.restockchest.error.container_not_found",
+                "Container not found"
+        );
+
+        add(
+                "command.restockchest.error.already_registered",
+                "This container is already registered"
+        );
+ 
+        add(
+                "command.restockchest.success.registered",
+                "Container registered at %s with a cooldown of %s seconds"
+        );
+    }
+}
