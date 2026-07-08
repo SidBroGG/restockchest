@@ -60,5 +60,20 @@ public final class RestockChestLanguageProvider extends LanguageProvider {
                 "command.restockchest.success.restocked",
                 "Container was restocked"
         );
+
+        add(
+                "command.restockchest.success.markers_enabled",
+                "Highlighted chests within 8 chunks"
+        );
+
+        add(
+                "command.restockchest.success.markers_disabled",
+                "Removed chest markers"
+        );
+
+        add(
+                "command.restockchest.error.no_loaded_chests",
+                "No loaded chests were found within 8 chunks"
+        );
     }
 }

@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
 import com.sidbro.restockchest.data.RestockChestEntry;
+import com.sidbro.restockchest.logic.RestockChestMarkerService;
 import com.sidbro.restockchest.logic.RestockChestService;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -58,6 +59,9 @@ public final class RestockChestCommand {
                         )
                         .then(Commands.literal("restock")
                                 .executes(RestockChestCommand::restockChest)
+                        )
+                        .then(Commands.literal("all")
+                                .executes(RestockChestCommand::toggleChestMarkers)
                         )
         );
     }
@@ -228,6 +232,26 @@ public final class RestockChestCommand {
 
         source.sendSuccess(() -> Component.translatable("command.restockchest.success.restocked"), false);
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int toggleChestMarkers(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var source = context.getSource();
+        var player = source.getPlayerOrException();
+
+        var result = RestockChestMarkerService.toggle(source.getLevel(), player);
+
+        if (result < 0) {
+            source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_disabled"), false);
+            return Command.SINGLE_SUCCESS;
+        }
+
+        if (result == 0) {
+            source.sendFailure(Component.translatable("command.restockchest.error.no_loaded_chests"));
+            return 0;
+        }
+
+        source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_enabled"), false);
         return Command.SINGLE_SUCCESS;
     }
 }
