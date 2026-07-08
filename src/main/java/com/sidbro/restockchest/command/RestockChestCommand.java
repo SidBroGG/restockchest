@@ -49,6 +49,15 @@ public final class RestockChestCommand {
                                         )
                                 )
                         )
+                        .then(Commands.literal("remove")
+                                .executes(RestockChestCommand::removeChest)
+                        )
+                        .then(Commands.literal("info")
+                                .executes(RestockChestCommand::getChestInfo)
+                        )
+//                        .then(Commands.literal("restock")
+//                                .executes(RestockChestCommand::restockChest)
+//                        )
         );
     }
 
@@ -126,6 +135,62 @@ public final class RestockChestCommand {
         data.add(entry);
 
         source.sendSuccess(() -> Component.translatable("command.restockchest.success.registered", targetPos.toShortString(), cooldownSeconds), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int removeChest(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var source = context.getSource();
+        var player = source.getPlayerOrException();
+        var level = source.getLevel();
+
+        var targetPos = findTargetContainer(player, level);
+
+        if (targetPos == null) {
+            source.sendFailure(Component.translatable("command.restockchest.error.container_not_found"));
+            return 0;
+        }
+
+        var data = RestockChestData.get(level);
+
+        if (!data.contains(level.dimension(), targetPos)) {
+            source.sendFailure(Component.translatable("command.restockchest.error.not_registered"));
+            return 0;
+        }
+
+        data.remove(level.dimension(), targetPos);
+
+        source.sendSuccess(() -> Component.translatable("command.restockchest.success.removed", targetPos.toShortString()), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getChestInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var source = context.getSource();
+        var player = source.getPlayerOrException();
+        var level = source.getLevel();
+
+        var targetPos = findTargetContainer(player, level);
+
+        if (targetPos == null) {
+            source.sendFailure(Component.translatable("command.restockchest.error.container_not_found"));
+            return 0;
+        }
+
+        var data = RestockChestData.get(level);
+
+        if (!data.contains(level.dimension(), targetPos)) {
+            source.sendFailure(Component.translatable("command.restockchest.error.not_registered"));
+            return 0;
+        }
+
+        var entry = data.get(level.dimension(), targetPos);
+
+        if (entry.isActive()) {
+            source.sendSuccess(() -> Component.translatable("command.restockchest.success.info_active", entry.lootTable().toString(), entry.cooldownTicks()), false);
+        } else {
+            source.sendSuccess(() -> Component.translatable("command.restockchest.success.info_disabled", entry.lootTable().toString(), entry.cooldownTicks()), false);
+        }
 
         return Command.SINGLE_SUCCESS;
     }

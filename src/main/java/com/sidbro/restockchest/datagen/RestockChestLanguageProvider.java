@@ -25,10 +25,28 @@ public final class RestockChestLanguageProvider extends LanguageProvider {
                 "command.restockchest.error.already_registered",
                 "This container is already registered"
         );
- 
+
         add(
                 "command.restockchest.success.registered",
                 "Container registered at %s with a cooldown of %s seconds"
+        );
+
+        add(
+                "command.restockchest.error.not_registered",
+                "This container is not registered"
+        );
+
+        add(
+                "command.restockchest.success.removed",
+                "Container registration removed at %s"
+        );
+        add(
+                "command.restockchest.success.info_active",
+                "Active container with %s loot table and %s cooldown ticks"
+        );
+        add(
+                "command.restockchest.success.info_disabled",
+                "Disabled container with %s loot table and %s cooldown ticks"
         );
     }
 }
