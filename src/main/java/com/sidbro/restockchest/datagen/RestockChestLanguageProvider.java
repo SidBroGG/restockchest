@@ -40,13 +40,25 @@ public final class RestockChestLanguageProvider extends LanguageProvider {
                 "command.restockchest.success.removed",
                 "Container registration removed at %s"
         );
+
         add(
                 "command.restockchest.success.info_active",
                 "Active container with %s loot table and %s cooldown ticks"
         );
+
         add(
                 "command.restockchest.success.info_disabled",
                 "Disabled container with %s loot table and %s cooldown ticks"
+        );
+
+        add(
+                "command.restockchest.error.restock_failed",
+                "Failed to restock this container"
+        );
+
+        add(
+                "command.restockchest.success.restocked",
+                "Container was restocked"
         );
     }
 }

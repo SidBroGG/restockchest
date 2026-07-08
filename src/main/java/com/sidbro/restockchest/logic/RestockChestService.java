@@ -1,0 +1,69 @@
+package com.sidbro.restockchest.logic;
+
+import com.sidbro.restockchest.data.RestockChestEntry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
+
+public final class RestockChestService {
+    private RestockChestService() {
+    }
+
+    public static boolean restock(ServerLevel level, RestockChestEntry entry, ServerPlayer player) {
+        var blockEntity = level.getBlockEntity(entry.pos());
+
+        if (!(blockEntity instanceof RandomizableContainerBlockEntity container)) {
+            return false;
+        }
+
+        boolean lootTableExists = level.getServer()
+                .reloadableRegistries()
+                .getKeys(Registries.LOOT_TABLE)
+                .stream().anyMatch(entry.lootTable()::equals);
+
+        if (!lootTableExists) {
+            return false;
+        }
+
+        var params = new LootParams.Builder(level)
+                .withParameter(
+                        LootContextParams.ORIGIN,
+                        Vec3.atCenterOf(entry.pos())
+                )
+                .withOptionalParameter(
+                        LootContextParams.THIS_ENTITY,
+                        player
+                )
+                .withLuck(player.getLuck())
+                .create(LootContextParamSets.CHEST);
+
+        var lootTable = level.getServer()
+                .reloadableRegistries()
+                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, entry.lootTable()));
+
+        container.setLootTable(null);
+        container.setLootTableSeed(0L);
+        container.clearContent();
+
+        lootTable.fill(
+                container,
+                params,
+                level.random.nextLong()
+        );
+
+        container.setChanged();
+
+        var state = level.getBlockState(entry.pos());
+
+        level.sendBlockUpdated(entry.pos(), state, state, Block.UPDATE_CLIENTS);
+
+        return true;
+    }
+}

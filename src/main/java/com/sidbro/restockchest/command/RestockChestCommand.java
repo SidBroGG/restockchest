@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
 import com.sidbro.restockchest.data.RestockChestEntry;
+import com.sidbro.restockchest.logic.RestockChestService;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -55,9 +56,9 @@ public final class RestockChestCommand {
                         .then(Commands.literal("info")
                                 .executes(RestockChestCommand::getChestInfo)
                         )
-//                        .then(Commands.literal("restock")
-//                                .executes(RestockChestCommand::restockChest)
-//                        )
+                        .then(Commands.literal("restock")
+                                .executes(RestockChestCommand::restockChest)
+                        )
         );
     }
 
@@ -195,4 +196,38 @@ public final class RestockChestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int restockChest(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var source = context.getSource();
+        var player = source.getPlayerOrException();
+        var level = source.getLevel();
+
+        var targetPos = findTargetContainer(player, level);
+
+        if (targetPos == null) {
+            source.sendFailure(Component.translatable("command.restockchest.error.container_not_found"));
+            return 0;
+        }
+
+        var data = RestockChestData.get(level);
+
+        if (!data.contains(level.dimension(), targetPos)) {
+            source.sendFailure(Component.translatable("command.restockchest.error.not_registered"));
+            return 0;
+        }
+
+        var entry = data.get(level.dimension(), targetPos);
+
+        var restocked = RestockChestService.restock(level, entry, player);
+
+        if (!restocked) {
+            source.sendFailure(Component.translatable("command.restockchest.error.restock_failed"));
+            return 0;
+        }
+
+        data.update(entry.stopTimer());
+
+        source.sendSuccess(() -> Component.translatable("command.restockchest.success.restocked"), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
 }
