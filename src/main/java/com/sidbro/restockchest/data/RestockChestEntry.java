@@ -1,4 +1,4 @@
-package com.sidbro.refillchest.data;
+package com.sidbro.restockchest.data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;

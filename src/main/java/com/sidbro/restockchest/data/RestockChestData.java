@@ -1,6 +1,5 @@
-package com.sidbro.refillchest.data;
+package com.sidbro.restockchest.data;
 
-import com.jcraft.jorbis.Block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RestockChestData extends SavedData {
-    private static final String DATA_NAME = "refillchests_restock_chests";
+    private static final String DATA_NAME = "restockchests_chests";
 
     private final Map<String, RestockChestEntry> chests = new HashMap<>();
 
