@@ -87,7 +87,7 @@ public final class RestockChestService {
     }
 
     // Поправить неудаление инвентаря сундука при смене его имени
-    public static void setTimeLeftName(RestockChestEntry entry, ServerLevel level) {
+//    public static void setTimeLeftName(RestockChestEntry entry, ServerLevel level) {
 //        var blockEntity = getBlockEntity(entry, level);
 //        var gameTime = level.getGameTime();
 //
@@ -96,6 +96,12 @@ public final class RestockChestService {
 //        }
 //
 //        if (!(blockEntity instanceof BaseContainerBlockEntity container)) {
+//            return;
+//        }
+//
+//        var containerComponent = container.components().get(DataComponents.CONTAINER);
+//
+//        if (containerComponent == null) {
 //            return;
 //        }
 //
@@ -110,5 +116,5 @@ public final class RestockChestService {
 //        var state = level.getBlockState(entry.pos());
 //
 //        level.sendBlockUpdated(entry.pos(), state, state, Block.UPDATE_CLIENTS);
-    }
+//    }
 }
