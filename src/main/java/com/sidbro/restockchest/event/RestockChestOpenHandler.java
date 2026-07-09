@@ -3,6 +3,8 @@ package com.sidbro.restockchest.event;
 import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,11 +18,20 @@ public class RestockChestOpenHandler {
 
     @SubscribeEvent
     public static void onContainerOpen(PlayerContainerEvent.Open event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
+        update(event.getEntity(), event.getContainer());
+    }
+
+    @SubscribeEvent
+    public static void onContainerClose(PlayerContainerEvent.Close event) {
+        update(event.getEntity(), event.getContainer());
+    }
+
+    private static void update(Player entity, AbstractContainerMenu containerMenu) {
+        if (!(entity instanceof ServerPlayer player)) {
             return;
         }
 
-        if (!(event.getContainer() instanceof ChestMenu chestMenu)) {
+        if (!(containerMenu instanceof ChestMenu chestMenu)) {
             return;
         }
 
