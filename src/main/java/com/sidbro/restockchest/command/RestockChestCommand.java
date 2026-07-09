@@ -139,6 +139,15 @@ public final class RestockChestCommand {
 
         data.add(entry);
 
+        var restocked = RestockChestService.restock(level, entry, player);
+
+        if (!restocked) {
+            source.sendFailure(Component.translatable("command.restockchest.error.restock_failed"));
+            return 0;
+        }
+
+        data.update(entry.stopTimer());
+
         source.sendSuccess(() -> Component.translatable("command.restockchest.success.registered", targetPos.toShortString(), cooldownSeconds), false);
 
         return Command.SINGLE_SUCCESS;
