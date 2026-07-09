@@ -139,7 +139,7 @@ public final class RestockChestCommand {
 
         data.add(entry);
 
-        var restocked = RestockChestService.restock(level, entry, player);
+        var restocked = RestockChestService.restock(level, entry);
 
         if (!restocked) {
             source.sendFailure(Component.translatable("command.restockchest.error.restock_failed"));
@@ -230,7 +230,7 @@ public final class RestockChestCommand {
 
         var entry = data.get(level.dimension(), targetPos);
 
-        var restocked = RestockChestService.restock(level, entry, player);
+        var restocked = RestockChestService.restock(level, entry);
 
         if (!restocked) {
             source.sendFailure(Component.translatable("command.restockchest.error.restock_failed"));

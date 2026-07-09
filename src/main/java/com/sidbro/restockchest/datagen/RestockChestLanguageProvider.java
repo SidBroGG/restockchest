@@ -75,5 +75,9 @@ public final class RestockChestLanguageProvider extends LanguageProvider {
                 "command.restockchest.error.no_loaded_chests",
                 "No loaded chests were found within 8 chunks"
         );
+        add(
+                "chest.restockchest.time_left",
+                "Restock in %s seconds"
+        );
     }
 }
