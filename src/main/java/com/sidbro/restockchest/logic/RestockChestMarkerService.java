@@ -21,6 +21,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class RestockChestMarkerService {
     private static final String MARKED_TAG = "restockchest_marker";
@@ -29,24 +31,39 @@ public final class RestockChestMarkerService {
     private static final int RADIUS_CHUNKS = 8;
     private static final float BEAM_WIDTH = 0.18F;
 
+    private static final Set<String> ENABLED_PLAYER = new HashSet<>();
+
     private RestockChestMarkerService() {
     }
 
-    public static int toggle(ServerLevel level, ServerPlayer player) {
-        var removedMarkers = removeMarkers(level, player);
+    public static boolean toggle(ServerLevel level, ServerPlayer player) {
+        var playerName = player.getName().getString();
 
-        if (removedMarkers > 0) {
-            return -removedMarkers;
+        if (ENABLED_PLAYER.remove(playerName)) {
+            removeMarkers(level, player);
+            return false;
         }
 
-        return createMarkers(level, player);
+        ENABLED_PLAYER.add(playerName);
+        refreshMarkers(level, player);
+
+        return true;
+    }
+
+    public static void refreshMarkers(ServerLevel level, ServerPlayer player) {
+        if (!ENABLED_PLAYER.contains(player.getName().getString())) {
+            return;
+        }
+
+        removeMarkers(level, player);
+        createMarkers(level, player);
     }
 
     private static String getOwnerTag(ServerPlayer player) {
         return OWNER_TAG_PREFIX + player.getName().getString();
     }
 
-    private static int removeMarkers(ServerLevel level, ServerPlayer player) {
+    private static void removeMarkers(ServerLevel level, ServerPlayer player) {
         var ownedTag = getOwnerTag(player);
         var markers = new ArrayList<Display.BlockDisplay>();
 
@@ -70,10 +87,9 @@ public final class RestockChestMarkerService {
             marker.discard();
         }
 
-        return markers.size();
     }
 
-    private static int createMarkers(ServerLevel level, ServerPlayer player) {
+    private static void createMarkers(ServerLevel level, ServerPlayer player) {
         var data = RestockChestData.get(level);
         var centerChunk = player.chunkPosition();
         var ownerTag = getOwnerTag(player);
@@ -109,7 +125,6 @@ public final class RestockChestMarkerService {
             }
         }
 
-        return createdMarkers;
     }
 
     private static boolean shouldCreateMarker(ServerLevel level, BlockPos pos) {
@@ -128,10 +143,10 @@ public final class RestockChestMarkerService {
         }
 
         if (entry.isActive()) {
-            return Blocks.GREEN_STAINED_GLASS.defaultBlockState();
+            return Blocks.ORANGE_STAINED_GLASS.defaultBlockState();
         }
 
-        return Blocks.ORANGE_STAINED_GLASS.defaultBlockState();
+        return Blocks.GREEN_STAINED_GLASS.defaultBlockState();
     }
 
     private static boolean createMarker(ServerLevel level, BlockPos pos, BlockState markerState, String ownerTag) {

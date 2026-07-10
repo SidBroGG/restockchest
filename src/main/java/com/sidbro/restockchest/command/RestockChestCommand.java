@@ -248,19 +248,14 @@ public final class RestockChestCommand {
         var source = context.getSource();
         var player = source.getPlayerOrException();
 
-        var result = RestockChestMarkerService.toggle(source.getLevel(), player);
+        var enabled = RestockChestMarkerService.toggle(source.getLevel(), player);
 
-        if (result < 0) {
-            source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_disabled"), false);
+        if (enabled) {
+            source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_enabled"), false);
             return Command.SINGLE_SUCCESS;
         }
 
-        if (result == 0) {
-            source.sendFailure(Component.translatable("command.restockchest.error.no_loaded_chests"));
-            return 0;
-        }
-
-        source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_enabled"), false);
+        source.sendSuccess(() -> Component.translatable("command.restockchest.success.markers_disabled"), false);
         return Command.SINGLE_SUCCESS;
     }
 }

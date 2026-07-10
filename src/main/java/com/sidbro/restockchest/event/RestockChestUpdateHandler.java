@@ -2,6 +2,7 @@ package com.sidbro.restockchest.event;
 
 import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
+import com.sidbro.restockchest.logic.RestockChestMarkerService;
 import com.sidbro.restockchest.logic.RestockChestService;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -49,6 +50,10 @@ public class RestockChestUpdateHandler {
             }
 
             RestockChestService.setTimeLeftName(entry, level);
+        }
+
+        for (var player : server.getPlayerList().getPlayers()) {
+            RestockChestMarkerService.refreshMarkers(player.serverLevel(), player);
         }
     }
 
