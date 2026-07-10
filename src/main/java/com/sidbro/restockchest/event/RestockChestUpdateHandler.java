@@ -3,7 +3,6 @@ package com.sidbro.restockchest.event;
 import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
 import com.sidbro.restockchest.logic.RestockChestService;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -48,8 +47,6 @@ public class RestockChestUpdateHandler {
                 data.update(entry.stopTimer());
                 continue;
             }
-
-            var container = (BaseContainerBlockEntity) blockEntity;
 
             RestockChestService.setTimeLeftName(entry, level);
         }
