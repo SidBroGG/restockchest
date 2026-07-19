@@ -1,6 +1,7 @@
 package com.sidbro.restockchest.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -51,6 +52,16 @@ public final class RestockChestCommand {
                                         )
                                 )
                         )
+                        .then(Commands.literal("radius")
+                                .then(Commands.argument("radius", IntegerArgumentType.integer(1, 100))
+                                        .then(Commands.argument("loot_table", ResourceLocationArgument.id())
+                                                .suggests(RestockChestCommand::suggestLootTables)
+                                                .then(Commands.argument("time_seconds", LongArgumentType.longArg(1, Long.MAX_VALUE / 20L))
+                                                        .executes(RestockChestCommand::registerChestInRadius)
+                                                )
+                                        )
+                                )
+                        )
                         .then(Commands.literal("remove")
                                 .executes(RestockChestCommand::removeChest)
                         )
@@ -64,6 +75,56 @@ public final class RestockChestCommand {
                                 .executes(RestockChestCommand::toggleChestMarkers)
                         )
         );
+    }
+
+    private static int registerChestInRadius(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var source = context.getSource();
+        var player = source.getPlayerOrException();
+        var level = source.getLevel();
+
+        var radius = IntegerArgumentType.getInteger(context, "radius");
+        var lootTableId = ResourceLocationArgument.getId(context, "loot_table");
+        var cooldownTicks = LongArgumentType.getLong(context, "time_seconds") * 20L;
+
+        if (!source.getServer().reloadableRegistries().getKeys(Registries.LOOT_TABLE).contains(lootTableId)) {
+            source.sendFailure(Component.translatable("command.restockchest.error.loot_table_not_found", lootTableId));
+            return 0;
+        }
+
+        var center = player.blockPosition();
+        var data = RestockChestData.get(level);
+        int registeredCount = 0;
+
+        for (var targetPos : BlockPos.betweenClosed(center.offset(-radius, -radius, -radius), center.offset(radius, radius, radius))) {
+            var blockEntity = level.getBlockEntity(targetPos);
+            if (!(blockEntity instanceof RandomizableContainerBlockEntity)) {
+                continue;
+            }
+
+            var state = level.getBlockState(targetPos);
+            if (state.getBlock() instanceof ChestBlock && state.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
+                continue;
+            }
+
+            if (data.contains(level.dimension(), targetPos)) {
+                continue;
+            }
+
+            var entry = RestockChestEntry.create(level.dimension(), targetPos.immutable(), lootTableId, cooldownTicks);
+            data.add(entry);
+
+            if (RestockChestService.restock(level, entry)) {
+                data.update(entry.stopTimer());
+                registeredCount++;
+            } else {
+                data.remove(level.dimension(), targetPos);
+            }
+        }
+
+        var finalCount = registeredCount;
+        source.sendSuccess(() -> Component.translatable("command.restockchest.success.registered_radius", finalCount, radius), false);
+
+        return finalCount;
     }
 
     private static CompletableFuture<Suggestions> suggestLootTables(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {

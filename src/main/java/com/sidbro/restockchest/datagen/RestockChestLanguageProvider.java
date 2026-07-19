@@ -70,10 +70,15 @@ public final class RestockChestLanguageProvider extends LanguageProvider {
                 "command.restockchest.success.markers_disabled",
                 "Removed chest markers"
         );
-        
+
         add(
                 "chest.restockchest.time_left",
                 "Restock in %s seconds"
+        );
+
+        add(
+                "command.restockchest.success.registered_radius",
+                "Registered %s chests in a radius of %s"
         );
     }
 }
