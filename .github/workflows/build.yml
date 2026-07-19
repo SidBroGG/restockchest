@@ -40,7 +40,17 @@ jobs:
       - name: Collect jar
         run: |
           mkdir -p release
-          find build/libs -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" ! -name "*-dev.jar" -exec cp {} release/ \;
+          # Find the compiled jar, ignoring sources and dev jars
+          JAR_PATH=$(find build/libs -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" ! -name "*-dev.jar" | head -n 1)
+          
+          # Check if the workflow was triggered by a tag push
+          if [[ ${{ github.ref }} == refs/tags/* ]]; then
+            # Copy and append the tag name to the file
+            cp "$JAR_PATH" "release/restockchest-${{ github.ref_name }}.jar"
+          else
+            # Default copy for standard commits
+            cp "$JAR_PATH" release/
+          fi
 
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
