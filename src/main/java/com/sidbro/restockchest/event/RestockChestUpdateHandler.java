@@ -32,7 +32,9 @@ public class RestockChestUpdateHandler {
         var containerEntries = data.all();
 
         for (var entry : containerEntries) {
-            var blockEntity = RestockChestService.getBlockEntity(entry, level);
+            if (!level.isLoaded(entry.pos())) {
+                continue;
+            }
 
             if (blockEntity == null) {
                 data.remove(level.dimension(), entry.pos());
