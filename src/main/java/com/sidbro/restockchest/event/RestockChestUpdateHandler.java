@@ -4,6 +4,9 @@ import com.sidbro.restockchest.RestockChest;
 import com.sidbro.restockchest.data.RestockChestData;
 import com.sidbro.restockchest.logic.RestockChestMarkerService;
 import com.sidbro.restockchest.logic.RestockChestService;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -51,12 +54,22 @@ public class RestockChestUpdateHandler {
                 data.update(entry.stopTimer());
                 continue;
             }
-
-            RestockChestService.setTimeLeftName(entry, level);
         }
 
         for (var player : server.getPlayerList().getPlayers()) {
             RestockChestMarkerService.refreshMarkers(player.serverLevel(), player);
+
+            var hitResult = player.pick(player.blockInteractionRange(), 0.0F, false);
+
+            if (hitResult instanceof BlockHitResult blockHit && hitResult.getType() == HitResult.Type.BLOCK) {
+                var playerLevel = player.serverLevel();
+                var entry = data.get(playerLevel.dimension(), blockHit.getBlockPos());
+
+                if (entry != null && entry.isActive()) {
+                    var secondsLeft = Math.max(0L, (entry.nextRestockTicks() - playerLevel.getGameTime()) / 20L);
+                    player.displayClientMessage(Component.translatable("chest.restockchest.time_left", secondsLeft), true);
+                }
+            }
         }
     }
 

@@ -1,15 +1,11 @@
 package com.sidbro.restockchest.logic;
 
 import com.sidbro.restockchest.data.RestockChestEntry;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.properties.ChestType;
@@ -83,28 +79,5 @@ public final class RestockChestService {
         }
 
         return blockEntity;
-    }
-
-    public static void setTimeLeftName(RestockChestEntry entry, ServerLevel level) {
-        var blockEntity = getBlockEntity(entry, level);
-        var gameTime = level.getGameTime();
-
-        if (!(blockEntity instanceof BaseContainerBlockEntity container)) {
-            return;
-        }
-
-        var secondsLeft = Math.max(0L, (entry.nextRestockTicks() - gameTime) / 20L);
-
-        var patch = DataComponentPatch.builder()
-                .set(DataComponents.CUSTOM_NAME, Component.translatable("chest.restockchest.time_left", secondsLeft))
-                .build();
-
-        container.applyComponents(container.collectComponents(), patch);
-
-        container.setChanged();
-
-        var state = level.getBlockState(entry.pos());
-
-        level.sendBlockUpdated(entry.pos(), state, state, Block.UPDATE_CLIENTS);
     }
 }
