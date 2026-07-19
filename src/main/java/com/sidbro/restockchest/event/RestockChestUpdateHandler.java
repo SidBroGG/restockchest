@@ -11,6 +11,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
+import java.util.List;
+
 @EventBusSubscriber(modid = RestockChest.MODID)
 public class RestockChestUpdateHandler {
     private static final long TICKS_TO_UPDATE = 20L;
@@ -32,7 +34,7 @@ public class RestockChestUpdateHandler {
 
         var data = RestockChestData.get(server.overworld());
 
-        var containerEntries = data.all();
+        var containerEntries = List.copyOf(data.all());
 
         for (var entry : containerEntries) {
             if (!level.isLoaded(entry.pos())) {
